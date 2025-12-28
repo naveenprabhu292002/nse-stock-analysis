@@ -45,62 +45,43 @@ import requests
 
 ALPHA_VANTAGE_API_KEY = "KUNVOVYC3GNS103S"
 
+import yfinance as yf
+from datetime import datetime
+
 @app.get("/api/history/{symbol}")
 async def get_history(symbol: str):
     try:
-        # Alpha Vantage for Indian stocks commonly works best with .BSE suffix
-        # We will try fetching for the BSE equivalent as a proxy for NSE data trends
-        ticker_symbol = f"{symbol}.BSE"
-        
-        print(f"Fetching history for {ticker_symbol} using Alpha Vantage...")
-        
-        url = f"https://www.alphavantage.co/query?function=TIME_SERIES_DAILY&symbol={ticker_symbol}&apikey={ALPHA_VANTAGE_API_KEY}"
-        response = requests.get(url)
-        data = response.json()
-        
-        # Check for error or limit message
-        if "Error Message" in data:
-            print(f"Alpha Vantage Error: {data['Error Message']}")
-            # Fallback check: maybe try without suffix if they meant US stock? 
-            # But assume Indian context first.
+        # NSE stocks require .NS suffix in yfinance
+        ticker_symbol = f"{symbol}.NS"
+        print(f"Fetching history for {ticker_symbol} using yfinance...")
+
+        ticker = yf.Ticker(ticker_symbol)
+
+        # Last 1 month (≈ 30 days)
+        hist = ticker.history(period="1mo")
+
+        if hist.empty:
+            print("No historical data returned from yfinance")
             return []
-        if "Note" in data:
-             print(f"Alpha Vantage API Limit/Note: {data['Note']}")
-        
-        # Parse Time Series
-        timeseries = data.get("Time Series (Daily)", {})
-        
+
         results = []
-        # Get only last 30 entries to match previous logic (approx 1 month)
-        sorted_dates = sorted(timeseries.keys(), reverse=True)[:30] 
-        
-        # We need to sort Oldest -> Newest for proper sorting in frontend processing 
-        # (though our current frontend logic handles sorting, standardized output is best)
-        # Actually frontend expects a list.
-        
-        for date_str in sorted_dates:
-            daily_data = timeseries[date_str]
-            # Alpha Vantage keys: "1. open", "2. high", "3. low", "4. close", "5. volume"
-            
-            # Format date from YYYY-MM-DD to DD-MM-YYYY
-            formatted_date = datetime.strptime(date_str, "%Y-%m-%d").strftime("%d-%m-%Y")
-            
-            record = {
-                "Date": formatted_date,
-                "Open": float(daily_data["1. open"]),
-                "High": float(daily_data["2. high"]),
-                "Low": float(daily_data["3. low"]),
-                "Close": float(daily_data["4. close"]),
-                "Volume": int(daily_data["5. volume"])
-            }
-            results.append(record)
-            
-        print(f"Fetched {len(results)} records from Alpha Vantage.")
+
+        for index, row in hist.iterrows():
+            results.append({
+                "Date": index.strftime("%d-%m-%Y"),
+                "Open": round(row["Open"], 2),
+                "High": round(row["High"], 2),
+                "Low": round(row["Low"], 2),
+                "Close": round(row["Close"], 2)
+            })
+
+        print(f"Fetched {len(results)} records from yfinance")
         return results
-        
+
     except Exception as e:
         print(f"Error fetching history for {symbol}: {e}")
         return []
+
 
 import re
 
