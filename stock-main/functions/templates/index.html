@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stock Analysis - NSE</title>
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+    <div class="container">
+        <header>
+            <h1><span class="highlight">NSE</span> Stock Analysis</h1>
+            <p class="subtitle">Real-time market insights</p>
+        </header>
+
+        <main>
+            <div class="search-container">
+                <input type="text" id="symbolInput" placeholder="Enter Stock Symbol (e.g. INFY, TATAMOTORS)"
+                    autocomplete="off">
+                <button id="searchBtn">Analyze</button>
+            </div>
+
+            <div id="loading" class="hidden">
+                <div class="spinner"></div>
+                <p>Fetching market data...</p>
+            </div>
+
+            <div id="error" class="hidden"></div>
+
+            <div id="dashboard" class="hidden">
+                <div class="stock-header">
+                    <h2 id="stockSymbol"></h2>
+                    <div id="stockPrice" class="price"></div>
+                    <div id="stockChange" class="change"></div>
+                    <div id="lastUpdateTime" class="time"></div>
+                </div>
+
+                <div class="grid-stats">
+                    <div class="card">
+                        <h3>Open</h3>
+                        <p id="statOpen">--</p>
+                    </div>
+                    <div class="card">
+                        <h3>High</h3>
+                        <p id="statHigh">--</p>
+                    </div>
+                    <div class="card">
+                        <h3>Low</h3>
+                        <p id="statLow">--</p>
+                    </div>
+                    <div class="card">
+                        <h3>Previous Close</h3>
+                        <p id="statPrevClose">--</p>
+                    </div>
+                </div>
+
+                <div class="card fundamentals-container hidden" id="fundamentalsSection">
+                    <h3>Fundamental Ratios</h3>
+                    <div class="ratios-grid">
+                        <div class="ratio-group">
+                            <h4>Valuation</h4>
+                            <div class="ratio-item clickable" onclick="showInfo('PE')"><span>P/E</span> <strong
+                                    id="ratioPE">--</strong></div>
+                            <div class="ratio-item clickable" onclick="showInfo('PEG')"><span>PEG</span> <strong
+                                    id="ratioPEG">--</strong></div>
+                            <div class="ratio-item clickable" onclick="showInfo('PB')"><span>P/B</span> <strong
+                                    id="ratioPB">--</strong></div>
+                        </div>
+                        <div class="ratio-group">
+                            <h4>Profitability</h4>
+                            <div class="ratio-item clickable" onclick="showInfo('ROE')"><span>ROE</span> <strong
+                                    id="ratioROE">--</strong></div>
+                            <div class="ratio-item clickable" onclick="showInfo('ROA')"><span>ROA</span> <strong
+                                    id="ratioROA">--</strong></div>
+                            <div class="ratio-item clickable" onclick="showInfo('Margin')"><span>Net Margin</span>
+                                <strong id="ratioMargin">--</strong>
+                            </div>
+                        </div>
+                        <div class="ratio-group">
+                            <h4>Liquidity & Leverage</h4>
+                            <div class="ratio-item clickable" onclick="showInfo('CurrentRatio')"><span>Current
+                                    Ratio</span> <strong id="ratioCurrent">--</strong></div>
+                            <div class="ratio-item clickable" onclick="showInfo('DebtEq')"><span>Debt/Eq</span> <strong
+                                    id="ratioDebtEq">--</strong></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card chart-container">
+                    <h3>Price History (Last 30 Days)</h3>
+                    <canvas id="priceChart"></canvas>
+                </div>
+
+                <div class="card table-container">
+                    <h3>Day Wise Analysis</h3>
+                    <div class="table-responsive">
+                        <table id="analysisTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Open</th>
+                                    <th>High</th>
+                                    <th>Low</th>
+                                    <th>Close</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Rows will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Info Modal -->
+    <div id="infoModal" class="modal hidden">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeInfo()">&times;</span>
+            <h3 id="modalTitle">Ratio Name</h3>
+            <p id="modalDesc">Description goes here.</p>
+        </div>
+    </div>
+
+    <script src="/static/script.js"></script>
+</body>
+
+</html>

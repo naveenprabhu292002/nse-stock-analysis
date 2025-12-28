@@ -1,0 +1,8 @@
+fastapi
+uvicorn
+nsepython
+jinja2
+requests
+yfinance
+pandas
+mangum
